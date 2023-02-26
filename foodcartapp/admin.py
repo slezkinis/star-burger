@@ -7,12 +7,24 @@ from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
 from .models import RestaurantMenuItem
+from .models import Order
+from .models import Order_elements
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
     model = RestaurantMenuItem
     extra = 0
 
+
+class Order_elementsInline(admin.TabularInline):
+    model = Order_elements
+ 
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    inlines = [
+        Order_elementsInline,
+    ]
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
