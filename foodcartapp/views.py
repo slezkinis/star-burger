@@ -1,7 +1,10 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
 import json
-from pprint import pprint
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
 
 from .models import Product, Order, Order_elements
 
@@ -58,18 +61,27 @@ def product_list_api(request):
     })
 
 
+@api_view(['POST'])
 def register_order(request):
-    order_data = json.loads(request.body.decode())
+    if 'products' not in request.data:
+        content = {'error': 'products: products is a required field'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if not request.data['products']:
+        content = {'error': 'products: products cannot be empty'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if not isinstance(request.data['products'], list):
+        content = {'error': 'products: products must be a list'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
     order = Order.objects.create(
-        address=order_data['address'],
-        firstname=order_data['firstname'],
-        lastname=order_data['lastname'],
-        phonenumber=order_data['phonenumber'],
+        address=request.data['address'],
+        firstname=request.data['firstname'],
+        lastname=request.data['lastname'],
+        phonenumber=request.data['phonenumber'],
     )
-    for product_data in order_data['products']:
+    for product_data in request.data['products']:
         product = Order_elements.objects.create(
             order=order,
             product=Product.objects.get(id=product_data['product']),
             quantity=product_data['quantity'],
         )
-    return JsonResponse({})
+    return Response({}, status=status.HTTP_200_OK)
