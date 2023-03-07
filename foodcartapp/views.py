@@ -113,7 +113,6 @@ class ApplicationSerializer(Serializer):
 
 @api_view(['POST'])
 def register_order(request):
-    print(request.data)
     serializer = ApplicationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)        
     order = Order.objects.create(
