@@ -70,7 +70,7 @@ class ApplicationSerializer(Serializer):
     phonenumber = CharField()
     firstname = CharField()
     lastname = CharField()
-    products = ListField()
+    products = ListField(write_only=True)
     address = CharField()
 
     def validate_firstname_type(self, value):
@@ -128,4 +128,4 @@ def register_order(request):
             product=Product.objects.get(id=product_data['product']),
             quantity=product_data['quantity'],
         )
-    return Response({}, status=status.HTTP_200_OK)
+    return Response(serializer.validated_data, status=status.HTTP_200_OK)
