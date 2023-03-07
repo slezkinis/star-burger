@@ -1,10 +1,14 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
 import json
+import phonenumbers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-import phonenumbers
+from rest_framework.serializers import ListField 
+from rest_framework.serializers import Serializer
+from rest_framework.serializers import CharField
+from rest_framework.serializers import ValidationError
 
 
 from .models import Product, Order, Order_elements
@@ -62,30 +66,56 @@ def product_list_api(request):
     })
 
 
+class ApplicationSerializer(Serializer):
+    phonenumber = CharField()
+    firstname = CharField()
+    lastname = CharField()
+    products = ListField()
+    address = CharField()
+
+    def validate_firstname_type(self, value):
+        if not isinstance(value, str):
+            raise ValidationError('firstname must be a string!')
+        return value
+
+    def validate_lastname_type(self, value):
+        if not isinstance(value, str):
+            raise ValidationError('lastname must be a string!')
+        return value
+
+    def validate_products(self, value):
+        if not isinstance(value, list):
+            raise ValidationError('firstname must be a string!')
+        if not value:
+            raise ValidationError("this field can't be empty")
+        for product in value:
+            try:
+                Product.objects.get(id=product['product'])
+            except:
+                raise ValidationError('one of product is not valid')
+        return value
+    
+    def validate_address_type(self, value):
+        if not isinstance(value, str):
+            raise ValidationError('address must be a string!')
+        return value
+
+    def validate_phonenumber(self, value):
+        if not isinstance(value, str):
+            raise ValidationError('phonenumber must be a string!')
+        if not value:
+            raise ValidationError("this field can't be empty")
+        parsed_number = phonenumbers.parse(value, 'RU')
+        if not phonenumbers.is_valid_number(parsed_number):
+            raise ValidationError('phonenumber is not valid')
+        return value
+
+
 @api_view(['POST'])
 def register_order(request):
-    if 'products' not in request.data or 'firstname' not in request.data or \
-        'lastname' not in request.data or 'phonenumber' not in request.data or \
-        'address' not in request.data:
-        content = {'error': 'Not found a required field! Check your request'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if not isinstance(request.data['products'], list) or not isinstance(request.data['firstname'], str) or \
-        not isinstance(request.data['lastname'], str) or not isinstance(request.data['phonenumber'], str) or \
-        not isinstance(request.data['address'], str):
-        content = {'error': 'Type of one of field is not correct'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if not request.data['products'] or not request.data['firstname'] or not request.data['lastname'] or \
-        not request.data['address'] or not request.data['phonenumber']:
-        content = {'error': 'Required cannot be empty'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if not isinstance(request.data['products'], list):
-        content = {'error': 'products: products must be a list'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    parsed_number = phonenumbers.parse(request.data['phonenumber'], 'RU')
-    if not phonenumbers.is_valid_number(parsed_number):
-        content = {'error': 'phonenumber: phonenumber is not valid'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    
+    print(request.data)
+    serializer = ApplicationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)        
     order = Order.objects.create(
         address=request.data['address'],
         firstname=request.data['firstname'],
@@ -93,13 +123,9 @@ def register_order(request):
         phonenumber=request.data['phonenumber'],
     )
     for product_data in request.data['products']:
-        try:
-            product = Order_elements.objects.create(
-                order=order,
-                product=Product.objects.get(id=product_data['product']),
-                quantity=product_data['quantity'],
-            )
-        except Product.DoesNotExist:
-            content = {'error': 'product: one of product is not valid'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        product = Order_elements.objects.create(
+            order=order,
+            product=Product.objects.get(id=product_data['product']),
+            quantity=product_data['quantity'],
+        )
     return Response({}, status=status.HTTP_200_OK)
