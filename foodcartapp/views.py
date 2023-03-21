@@ -11,7 +11,7 @@ from rest_framework.serializers import CharField
 from rest_framework.serializers import ValidationError
 
 
-from .models import Product, Order, Order_elements
+from .models import Product, Order, OrderElements
 
 
 def banners_list_api(request):
@@ -122,7 +122,7 @@ def register_order(request):
         phonenumber=request.data['phonenumber'],
     )
     for product_data in request.data['products']:
-        product = Order_elements.objects.create(
+        product = OrderElements.objects.create(
             order=order,
             product=Product.objects.get(id=product_data['product']),
             quantity=product_data['quantity'],
