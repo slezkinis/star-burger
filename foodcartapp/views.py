@@ -9,6 +9,7 @@ from rest_framework.serializers import ListField
 from rest_framework.serializers import Serializer
 from rest_framework.serializers import CharField
 from rest_framework.serializers import ValidationError
+from django.db import transaction
 
 
 from .models import Product, Order, OrderElements
@@ -112,9 +113,10 @@ class ApplicationSerializer(Serializer):
 
 
 @api_view(['POST'])
+@transaction.non_atomic_requests
 def register_order(request):
     serializer = ApplicationSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)        
+    serializer.is_valid(raise_exception=True) 
     order = Order.objects.create(
         address=request.data['address'],
         firstname=request.data['firstname'],
