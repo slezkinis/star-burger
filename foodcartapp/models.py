@@ -136,6 +136,13 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+    STATUSES = (
+        ('Менеджер', 'Менеджер'),
+        ('Ресторан', 'Ресторан'),
+        ('Курьер', 'Курьер'),
+        ('Доставлен', 'Доставлен'),
+    )
+
     address = models.CharField(
         verbose_name='Адрес',
         max_length=200
@@ -144,6 +151,7 @@ class Order(models.Model):
     lastname = models.CharField(verbose_name='Фамилия', max_length=100)
     phonenumber = PhoneNumberField('Номер телефона клиента')
     objects = OrderQuerySet.as_manager()
+    status = models.CharField('Статус', choices=STATUSES, default='Менеджер', max_length=100)
 
     class Meta:
         verbose_name = 'заказ'

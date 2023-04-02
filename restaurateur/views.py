@@ -95,7 +95,10 @@ def view_orders(request):
     orders = []
     for order in Order.objects.calcurate_order_cost():
         orders.append(
-            {'client_name': f'{order.firstname} {order.lastname}', 'phonenumber': order.phonenumber, 'id': order.id, 'address': order.address, 'cost': f'{order.order_cost} руб.'}
+            {
+                'client_name': f'{order.firstname} {order.lastname}', 'phonenumber': order.phonenumber, 'id': order.id,
+                'address': order.address, 'cost': f'{order.order_cost} руб.', 'status': order.status
+            }
         )
     return render(request, template_name='order_items.html', context={
         'orders': orders
