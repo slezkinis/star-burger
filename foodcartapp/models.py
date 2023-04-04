@@ -142,7 +142,10 @@ class Order(models.Model):
         ('Курьер', 'Курьер'),
         ('Доставлен', 'Доставлен'),
     )
-
+    PAYMENT_METODS = (
+        ('Наличными', 'Наличными'),
+        ('Электронно', 'Электронно')
+    )
     address = models.CharField(
         verbose_name='Адрес',
         max_length=200
@@ -150,6 +153,7 @@ class Order(models.Model):
     firstname = models.CharField(verbose_name='Имя', max_length=100)
     lastname = models.CharField(verbose_name='Фамилия', max_length=100)
     phonenumber = PhoneNumberField('Номер телефона клиента')
+    payment_method = models.CharField('Способ оплаты', choices=PAYMENT_METODS, default='Наличные', max_length=100)
     objects = OrderQuerySet.as_manager()
     status = models.CharField('Статус', choices=STATUSES, default='Менеджер', max_length=100)
     comment = models.TextField('Комментарий', blank=True)
