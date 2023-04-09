@@ -13,6 +13,7 @@ from geopy import distance
 
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from places.models import Place
 
 
 class Login(forms.Form):
@@ -113,7 +114,8 @@ def fetch_coordinates(apikey, address):
 
 
 def get_distance(restaurant, order_coords):
-    restaurant_coords = fetch_coordinates(YANDEX_APIKEY, Restaurant.objects.get(name=restaurant).address)
+    place = Place.objects.get(adress=restaurant.address)
+    restaurant_coords = (place.lon, place.lat)
     if not restaurant_coords:
         return None
     distance_restaurant = distance.distance(
@@ -135,7 +137,7 @@ def view_orders(request):
                 if order_product.product not in restaurant_menu:
                     break
             else:
-                restaurants.append(restaurant.name)
+                restaurants.append(restaurant)
         restaurants_with_distances = []
         for restaurant in restaurants:
             restaurant_distance = get_distance(restaurant, order_coords)
@@ -143,7 +145,7 @@ def view_orders(request):
                 error = True
                 break
             restaurants_with_distances.append(
-                (restaurant, restaurant_distance)
+                (restaurant.name, restaurant_distance)
             )
         restaurants_with_distances = sorted(restaurants_with_distances, key=lambda restaurant: restaurant[1])
         orders.append(
@@ -179,3 +181,4 @@ def view_orders(request):
     return render(request, template_name='order_items.html', context={
         'orders': orders
     })
+
