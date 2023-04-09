@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -93,18 +93,47 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = []
-    for order in Order.objects.calcurate_order_cost():
+    restaurants = []
+    for order in Order.objects.filter(restaurant__isnull=True).calcurate_order_cost():
+        for restaurant in Restaurant.objects.all():
+            restaurant_menu = [product.product for product in restaurant.menu_items.all()]
+            for order_product in order.products.all():
+                if order_product.product not in restaurant_menu:
+                    break
+            else:
+                restaurants.append(restaurant.name)
         orders.append(
             {
                 'client_name': f'{order.firstname} {order.lastname}',
-                'phonenumber': order.phonenumber, 'id': order.id,
+                'phonenumber': order.phonenumber, 
+                'id': order.id,
                 'address': order.address,
                 'cost': f'{order.order_cost} руб.',
                 'status': order.status,
                 'comment': order.comment,
-                'payment_method': order.payment_method
+                'payment_method': order.payment_method,
+                'restaurants': ", ".join(restaurants),
+                'restaurant': ''
             }
         )
+    for order in Order.objects.filter(restaurant__isnull=False).calcurate_order_cost():
+        orders.append(
+            {
+                'client_name': f'{order.firstname} {order.lastname}',
+                'phonenumber': order.phonenumber, 
+                'id': order.id,
+                'address': order.address,
+                'cost': f'{order.order_cost} руб.',
+                'status': order.status,
+                'comment': order.comment,
+                'payment_method': order.payment_method,
+                'restaurants': '',
+                'restaurant': order.restaurant
+            }
+        )
+        print(order.status == 'Менеджер')
+        if order.status == 'Менеджер':
+            print(Order.objects.get(id=order.id))
     return render(request, template_name='order_items.html', context={
         'orders': orders
     })
