@@ -36,13 +36,18 @@
         <td>{{order.cost}}</td>
         <td>{{order.comment}}</td>
         <td>
-          {% if order.restaurants %}
+          {% if order.restaurants and not order.error%}
           <details>
             <summary>Могут приготовить</summary>
-            {{order.restaurants}}
-          </details>        
+            {% for restaurant, distance in order.restaurants %}
+            <p> {{restaurant}} - {{distance}} км</p>
+             
+            {% endfor %}
+          </details>  
           {% elif order.restaurant %}
           {{order.restaurant}}
+          {% else %}
+          Ошибка определения координат
           {% endif %}
         </td>
         <td><a href='{% url "admin:foodcartapp_order_change" object_id=order.id %}?next={{ request.get_full_path|urlencode }}'>Редактировать</a></td>

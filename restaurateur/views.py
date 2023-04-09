@@ -4,8 +4,12 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 
+from star_burger.settings import YANDEX_APIKEY
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+import requests
+from geopy import distance
 
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
@@ -90,11 +94,41 @@ def view_restaurants(request):
     })
 
 
+def fetch_coordinates(apikey, address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": apikey,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lon, lat
+
+
+def get_distance(restaurant, order_coords):
+    restaurant_coords = fetch_coordinates(YANDEX_APIKEY, Restaurant.objects.get(name=restaurant).address)
+    if not restaurant_coords:
+        return None
+    distance_restaurant = distance.distance(
+        (order_coords[1], order_coords[0]), 
+        (restaurant_coords[1], restaurant_coords[0])).km
+    return distance_restaurant
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = []
     restaurants = []
+    error = False
     for order in Order.objects.filter(restaurant__isnull=True).calcurate_order_cost():
+        order_coords = fetch_coordinates(YANDEX_APIKEY, order.address)
         for restaurant in Restaurant.objects.all():
             restaurant_menu = [product.product for product in restaurant.menu_items.all()]
             for order_product in order.products.all():
@@ -102,6 +136,16 @@ def view_orders(request):
                     break
             else:
                 restaurants.append(restaurant.name)
+        restaurants_with_distances = []
+        for restaurant in restaurants:
+            restaurant_distance = get_distance(restaurant, order_coords)
+            if not restaurant_distance:
+                error = True
+                break
+            restaurants_with_distances.append(
+                (restaurant, restaurant_distance)
+            )
+        restaurants_with_distances = sorted(restaurants_with_distances, key=lambda restaurant: restaurant[1])
         orders.append(
             {
                 'client_name': f'{order.firstname} {order.lastname}',
@@ -110,9 +154,10 @@ def view_orders(request):
                 'address': order.address,
                 'cost': f'{order.order_cost} руб.',
                 'status': order.status,
+                'error': error,
                 'comment': order.comment,
                 'payment_method': order.payment_method,
-                'restaurants': ", ".join(restaurants),
+                'restaurants': restaurants_with_distances,
                 'restaurant': ''
             }
         )
@@ -131,9 +176,6 @@ def view_orders(request):
                 'restaurant': order.restaurant
             }
         )
-        print(order.status == 'Менеджер')
-        if order.status == 'Менеджер':
-            print(Order.objects.get(id=order.id))
     return render(request, template_name='order_items.html', context={
         'orders': orders
     })
