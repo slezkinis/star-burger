@@ -78,4 +78,4 @@ def register_order(request):
             product=Product.objects.get(id=product_data['product']),
             quantity=product_data['quantity'],
         )
-    return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
