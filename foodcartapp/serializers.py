@@ -26,7 +26,7 @@ class OrderSerializer(ModelSerializer):
 
     def validate_products(self, value):
         if not isinstance(value, list):
-            raise ValidationError('firstname must be a string!')
+            raise ValidationError('products must be a string!')
         if not value:
             raise ValidationError("this field can't be empty")
         for product in value:
