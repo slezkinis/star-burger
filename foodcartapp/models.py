@@ -137,14 +137,14 @@ class OrderQuerySet(models.QuerySet):
 
 class Order(models.Model):
     STATUSES = (
-        ('Менеджер', 'Менеджер'),
-        ('Ресторан', 'Ресторан'),
-        ('Курьер', 'Курьер'),
-        ('Доставлен', 'Доставлен'),
+        ('manager', 'Менеджер'),
+        ('restaurant', 'Ресторан'),
+        ('courier', 'Курьер'),
+        ('delivered', 'Доставлен'),
     )
     PAYMENT_METODS = (
-        ('Наличными', 'Наличными'),
-        ('Электронно', 'Электронно')
+        ('cash', 'Наличными'),
+        ('electronically', 'Электронно')
     )
     address = models.CharField(
         verbose_name='Адрес',
