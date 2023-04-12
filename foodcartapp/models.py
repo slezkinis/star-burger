@@ -153,7 +153,7 @@ class Order(models.Model):
     firstname = models.CharField(verbose_name='Имя', max_length=100)
     lastname = models.CharField(verbose_name='Фамилия', max_length=100)
     phonenumber = PhoneNumberField('Номер телефона клиента')
-    payment_method = models.CharField('Способ оплаты', choices=PAYMENT_METODS, default='Наличные', max_length=100)
+    payment_method = models.CharField('Способ оплаты', choices=PAYMENT_METODS, max_length=100)
     restaurant = models.ForeignKey(Restaurant, verbose_name='Ресторан. который готовит', blank=True, null=True, on_delete=models.CASCADE)
     objects = OrderQuerySet.as_manager()
     status = models.CharField('Статус', choices=STATUSES, default='Менеджер', max_length=100)
