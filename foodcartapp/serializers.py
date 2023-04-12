@@ -1,13 +1,13 @@
 from rest_framework.serializers import ListField 
-from rest_framework.serializers import Serializer
+from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import CharField
 from rest_framework.serializers import ValidationError
 import phonenumbers
 
-from .models import Product
+from .models import Product, Order
 
 
-class ApplicationSerializer(Serializer):
+class ApplicationSerializer(ModelSerializer):
     phonenumber = CharField()
     firstname = CharField()
     lastname = CharField()
@@ -50,3 +50,15 @@ class ApplicationSerializer(Serializer):
         if not phonenumbers.is_valid_number(parsed_number):
             raise ValidationError('phonenumber is not valid')
         return value
+
+    class Meta():
+        model = Order
+        fields = [
+            'id',
+            'firstname',
+            'lastname',
+            'lastname',
+            'phonenumber',
+            'products',
+            'address'
+        ]
