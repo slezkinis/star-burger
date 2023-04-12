@@ -11,6 +11,7 @@ from django.contrib.auth import views as auth_views
 import requests
 from geopy import distance
 
+from .coordinates import fetch_coordinates
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 from places.models import Place
