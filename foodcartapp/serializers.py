@@ -7,7 +7,7 @@ import phonenumbers
 from .models import Product, Order
 
 
-class ApplicationSerializer(ModelSerializer):
+class OrderSerializer(ModelSerializer):
     phonenumber = CharField()
     firstname = CharField()
     lastname = CharField()

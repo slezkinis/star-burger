@@ -8,7 +8,7 @@ from django.db import transaction
 
 from .models import Product, Order, OrderElements
 
-from .serializers import ApplicationSerializer
+from .serializers import OrderSerializer
 
 def banners_list_api(request):
     # FIXME move data to db?
@@ -65,7 +65,7 @@ def product_list_api(request):
 @api_view(['POST'])
 @transaction.non_atomic_requests
 def register_order(request):
-    serializer = ApplicationSerializer(data=request.data)
+    serializer = OrderSerializer(data=request.data)
     serializer.is_valid(raise_exception=True) 
     order = Order.objects.create(
         address=request.data['address'],
