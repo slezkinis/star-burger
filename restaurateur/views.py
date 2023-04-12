@@ -129,7 +129,7 @@ def view_orders(request):
     orders = []
     restaurants = []
     error = False
-    for order in Order.objects.filter(restaurant__isnull=True).calcurate_order_cost():
+    for order in Order.objects.filter(executive_restaurant__isnull=True).calcurate_order_cost():
         order_coords = fetch_coordinates(YANDEX_APIKEY, order.address)
         for restaurant in Restaurant.objects.all():
             restaurant_menu = [product.product for product in restaurant.menu_items.all()]
@@ -163,7 +163,7 @@ def view_orders(request):
                 'restaurant': ''
             }
         )
-    for order in Order.objects.filter(restaurant__isnull=False).calcurate_order_cost():
+    for order in Order.objects.filter(executive_restaurant__isnull=False).calcurate_order_cost():
         orders.append(
             {
                 'client_name': f'{order.firstname} {order.lastname}',
@@ -175,7 +175,7 @@ def view_orders(request):
                 'comment': order.comment,
                 'payment_method': order.payment_method,
                 'restaurants': '',
-                'restaurant': order.restaurant
+                'restaurant': order.executive_restaurant
             }
         )
     return render(request, template_name='order_items.html', context={
