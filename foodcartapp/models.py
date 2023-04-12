@@ -1,8 +1,8 @@
 from django.db import models
-from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import F, Sum
 from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Restaurant(models.Model):
@@ -173,5 +173,5 @@ class Order(models.Model):
 class OrderElements(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='Заказ', related_name='products')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Продукт', related_name='order_elements')
-    quantity = models.IntegerField(verbose_name='Количество')
+    quantity = models.IntegerField(verbose_name='Количество', validators=[MinValueValidator(0)])
     price = models.DecimalField(verbose_name='Цена', max_digits=5, decimal_places=2, validators=[MinValueValidator(0)], blank=True, null=True)
