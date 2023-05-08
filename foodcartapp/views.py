@@ -8,7 +8,7 @@ from django.db import transaction
 
 from .models import Product, Order, OrderElements
 
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, OrderElementsSerializer
 
 def banners_list_api(request):
     # FIXME move data to db?
@@ -67,16 +67,8 @@ def product_list_api(request):
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
     serializer.is_valid(raise_exception=True) 
-    order = Order.objects.create(
-        address=request.data['address'],
-        firstname=request.data['firstname'],
-        lastname=request.data['lastname'],
-        phonenumber=request.data['phonenumber'],
-    )
+    order = OrderSerializer.create(serializer, request)
     for product_data in request.data['products']:
-        product = OrderElements.objects.create(
-            order=order,
-            product=Product.objects.get(id=product_data['product']),
-            quantity=product_data['quantity'],
-        )
+        order_element_serializer = OrderElementsSerializer(data=product_data)
+        product = OrderElementsSerializer.create(order_element_serializer, order, product_data)
     return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)

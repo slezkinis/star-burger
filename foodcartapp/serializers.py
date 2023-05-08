@@ -8,6 +8,15 @@ from .models import Product, Order, OrderElements
 
 
 class OrderElementsSerializer(ModelSerializer):
+    def create(self, order, product_data):
+        return OrderElements.objects.create(
+            order=order,
+            product=Product.objects.get(id=product_data['product']),
+            quantity=product_data['quantity'],
+            price=Product.objects.get(id=product_data['product']).price * product_data['quantity']
+            )
+
+    
     class Meta:
         model = OrderElements
         fields = [
@@ -19,6 +28,15 @@ class OrderElementsSerializer(ModelSerializer):
 class OrderSerializer(ModelSerializer):
     products = OrderElementsSerializer(many=True, allow_empty=False)
 
+    def create(self, request):
+        return Order.objects.create(
+            address=request.data['address'],
+            firstname=request.data['firstname'],
+            lastname=request.data['lastname'],
+            phonenumber=request.data['phonenumber'],
+        )
+
+    
     def validate_phonenumber(self, value):
         if not isinstance(value, str):
             raise ValidationError('phonenumber must be a string!')
