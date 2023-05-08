@@ -1,5 +1,4 @@
 from rest_framework.serializers import ModelSerializer
-from rest_framework.serializers import ValidationError
 from phonenumber_field.serializerfields import PhoneNumberField
 
 from .models import Product, Order, OrderElements
