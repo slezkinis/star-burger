@@ -5,13 +5,15 @@ from .models import Product, Order, OrderElements
 
 
 class OrderElementsSerializer(ModelSerializer):
-    def create(self, order, product_data):
-        return OrderElements.objects.create(
-            order=order,
-            product=Product.objects.get(id=product_data['product']),
-            quantity=product_data['quantity'],
-            price=Product.objects.get(id=product_data['product']).price * product_data['quantity']
-            )
+    def create(self, order, products):
+        for product_data in products:
+            OrderElements.objects.create(
+                order=order,
+                product=Product.objects.get(id=product_data['product']),
+                quantity=product_data['quantity'],
+                price=Product.objects.get(id=product_data['product']).price * product_data['quantity']
+                )
+        return
 
     
     class Meta:
