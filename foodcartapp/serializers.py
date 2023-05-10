@@ -13,8 +13,6 @@ class OrderElementsSerializer(ModelSerializer):
                 quantity=product_data['quantity'],
                 price=Product.objects.get(id=product_data['product']).price * product_data['quantity']
                 )
-        return
-
     
     class Meta:
         model = OrderElements
