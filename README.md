@@ -158,6 +158,7 @@ Parcel будет следить за файлами в каталоге `bundle
 ./deploy_star_burger.sh
 ```
 
+## [Ссылка на сайт](https://starburger.slezkinis.ru/)
 
 ## Цели проекта
 
