@@ -10,9 +10,9 @@ echo "[!] Зависимости установлены!"
 npm ci --dev > /dev/null
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./" > /dev/null
 rm -r static/
-python3 manage.py collectstatic > /dev/null
+python3 manage.py collectstatic --noinput
 echo "[!] Статика для Django собрана!"
-python3 manage.py migrate > /dev/null
+python3 manage.py migrate --noinput
 echo "[!] База данных отмигрированна!"
 systemctl reload nginx.service
 systemctl restart star-burger.service
