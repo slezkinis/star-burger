@@ -17,6 +17,6 @@ echo "[!] База данных отмигрированна!"
 systemctl reload nginx.service
 systemctl restart star-burger.service
 echo "[!] Все зависимые процессы перезагружены!"
-echo "$(git rev-parse --verify HEAD)"
-curl -H "X-Rollbar-Access-Token: <Token>" -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{"environment": "production", "revision": "$(git rev-parse --verify HEAD)", "rollbar_name": "FirstProject", "local_username": "root", "comment": "New deploy", "status": "succeeded"}'
+echo "$1"
+curl -H "X-Rollbar-Access-Token: $2" -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{"environment": "production", "revision": "$(git rev-parse --verify HEAD)", "rollbar_name": "$1", "local_username": "root", "comment": "New deploy", "status": "succeeded"}' > /dev/null
 echo "[!] Всё готово"
