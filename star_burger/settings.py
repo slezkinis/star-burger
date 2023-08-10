@@ -94,14 +94,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'star_burger',
-        'USER': env('LOGIN'),
-        'PASSWORD': env('PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '',
-    }
+    'default': env.dj_db_url("DATABASE_URL")
 }
 
 AUTH_PASSWORD_VALIDATORS = [

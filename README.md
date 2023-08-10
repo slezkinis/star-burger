@@ -54,14 +54,13 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Определите переменную окружения `SECRET_KEY`,  `YANDEX_APIKEY`, `ROLLBAR_TOKEN` и `ROLLBAR_ENVIROMENT`. Также укажите логин и пароль от пользователя базы данных в полях `LOGIN` и `PASSWORD` соответсвенно. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+Определите переменную окружения `SECRET_KEY`,  `YANDEX_APIKEY`, `ROLLBAR_TOKEN` и `ROLLBAR_ENVIROMENT`. Также подключитесь к базе дыннх, указав url в поле `DATABASE_URL`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_APIKEY=YOUR_KEY_1234
 ROLLBAR_TOKEN='Token_rollbar_123321'
 ROLLBAR_ENVIROMENT='production'
-LOGIN='user'
-PASSWORD='password'
+DATABASE_URL='postgres://user:password@host:port/database_name'
 ```
 При этом, настройки `ROLLBAR_TOKEN` и `ROLLBAR_ENVIROMENT` не обязательны. Если не указать токен, тогда просто Rollbar не будет работать
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
